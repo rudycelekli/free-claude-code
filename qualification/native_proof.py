@@ -83,7 +83,16 @@ def main():
             raise RuntimeError("uv version command failed")
         if not re.search(r"^uv 0\.12\.13(?:[ \n]|$)", (proof / "uv-version.log").read_text(), re.MULTILINE):
             raise RuntimeError("Exact uv0.12.13 runtime unavailable")
-        if run("runtime", ["uv", "run", "--no-project", "--python", "3.14.7", "python", "-c", "import sys; print(sys.version); assert sys.version_info[:3] == (3, 14, 7)"]):
+        runtime_code = (
+            "import json, os, platform, sys; from pathlib import Path; "
+            "record = {'python': sys.version, 'system': platform.system(), "
+            "'platform': platform.platform(), 'machine': platform.machine(), "
+            "'runner_os': os.environ.get('RUNNER_OS')}; "
+            "Path(sys.argv[1]).write_text(json.dumps(record, indent=2)); print(json.dumps(record)); "
+            "assert sys.version_info[:3] == (3, 14, 7); "
+            "assert record['system'] == {'Linux': 'Linux', 'Windows': 'Windows', 'macOS': 'Darwin'}[record['runner_os']]"
+        )
+        if run("runtime", ["uv", "run", "--no-project", "--python", "3.14.7", "python", "-c", runtime_code, str(proof / "runtime-environment.json")]):
             raise RuntimeError("Exact Python3.14.7 runtime unavailable")
         if run("dependency-sync", ["uv", "sync", "--locked", "--group", "dev"]):
             raise RuntimeError("Locked native dependency setup failed")
