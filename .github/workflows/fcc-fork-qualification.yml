@@ -1,0 +1,122 @@
+name: FCC fork native qualification
+on:
+  workflow_dispatch:
+    inputs:
+      fixed_sha:
+        description: Reviewed production candidate full immutable commit SHA
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: fcc-native-qualification
+  cancel-in-progress: false
+jobs:
+  native:
+    if: github.repository == 'rudycelekli/free-claude-code' && github.event.repository.private == false
+    name: ${{ matrix.os }} / ${{ matrix.mode }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        mode: [baseline, fixed]
+        os: [Linux, Windows, macOS]
+        include:
+          - os: Linux
+            runner: ubuntu-latest
+          - os: Windows
+            runner: windows-latest
+          - os: macOS
+            runner: macos-latest
+    env:
+      UV_CACHE_DIR: ${{ runner.temp }}/fcc-uv-cache
+      UV_PYTHON_INSTALL_DIR: ${{ runner.temp }}/fcc-python
+      UV_PYTHON_PREFERENCE: only-managed
+      PLAYWRIGHT_BROWSERS_PATH: ${{ runner.temp }}/fcc-browsers
+      UV_MALWARE_CHECK: '1'
+      UV_PREVIEW_FEATURES: malware-check
+      FCC_FIXED_SHA: ${{ inputs.fixed_sha }}
+      FCC_MODE: ${{ matrix.mode }}
+    steps:
+      - name: Read immutable qualification runner
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          path: qualification
+          persist-credentials: false
+      - name: Read immutable source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: ${{ matrix.mode == 'baseline' && 'Alishahryar1/free-claude-code' || 'rudycelekli/free-claude-code' }}
+          ref: ${{ matrix.mode == 'baseline' && '4e99ddaa5cf453d4ef22fae7c17f7f3aacc3c52b' || inputs.fixed_sha }}
+          path: source
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Initialize proof inventory
+        shell: bash
+        run: |
+          mkdir -p proof
+          git -C qualification rev-parse HEAD > proof/qualification-head.txt
+          git -C source rev-parse HEAD > proof/source-head.txt
+      - name: Install exact uv
+        uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4
+        with:
+          version: '0.12.13'
+          enable-cache: false
+      - name: Install exact Python
+        shell: bash
+        run: uv python install 3.14.7
+      - name: Preserve canonical version tags
+        shell: bash
+        run: |
+          git -C source fetch --no-tags https://github.com/Alishahryar1/free-claude-code.git '+refs/tags/*:refs/tags/*'
+          mkdir -p proof
+          git -C source show-ref --tags > proof/version-tags.txt
+      - name: Verify evaluator controls
+        shell: bash
+        run: |
+          uv run --no-project --python 3.14.7 python qualification/qualification/test_evaluator.py > proof/evaluator-controls.log 2>&1
+      - name: Execute full native source sequence and exact regressions
+        shell: bash
+        run: |
+          set -o pipefail
+          uv run --no-project --python 3.14.7 python qualification/qualification/native_proof.py --source source --proof proof --mode "$FCC_MODE" --fixed-sha "$FCC_FIXED_SHA" 2>&1 | tee proof/native-runner.log
+      - name: Preserve proof on every outcome
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: fcc-native-${{ matrix.os }}-${{ matrix.mode }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: proof/
+          if-no-files-found: error
+          retention-days: 1
+          compression-level: 9
+  compare:
+    if: always() && github.repository == 'rudycelekli/free-claude-code' && github.event.repository.private == false
+    needs: native
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0
+        with:
+          pattern: fcc-native-*
+          path: native-artifacts
+      - name: Compare original and fixed full test/browser identities
+        run: |
+          mkdir -p comparison-proof
+          python qualification/test_suite_receipts.py > comparison-proof/evaluator-controls.log 2>&1
+          python qualification/compare_full_suites.py --artifacts native-artifacts --output comparison-proof/full-suite-comparison.json > comparison-proof/comparison.log 2>&1
+      - name: Preserve comparison outcome
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: fcc-full-suite-comparison-${{ github.run_id }}-${{ github.run_attempt }}
+          path: comparison-proof/
+          if-no-files-found: error
+          retention-days: 1
+          compression-level: 9

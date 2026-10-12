@@ -1,0 +1,43 @@
+{
+  "base": "4e99ddaa5cf453d4ef22fae7c17f7f3aacc3c52b",
+  "patch_sha256": "b2e216b1b25c350a4b620675e3ee562bc9cfe74a1b1fe7daf72438f9153168f1",
+  "fixed_files": {
+    "README.md": "949e4f5a922a308a3279008e079683761301fd2644742ebeb9acade7ed51ae5a",
+    "src/free_claude_code/messaging/rendering/markdown_tables.py": "378d3c6c97e2b49818541df5a4e8b95f7fa0914f048adcf99907b30a990543a3",
+    "tests/messaging/test_markdown_table_fences.py": "455957f71746e5c3533d70aed8b4ab2c953b89a8b31320b7e45e7fa22e81a99b"
+  },
+  "regression_path": "tests/messaging/test_markdown_table_fences.py",
+  "regressions": {
+    "names": [
+      "test_preserves_table_like_content_in_fences[~~~-example-~~~]",
+      "test_preserves_table_like_content_in_fences[~~~~python-~~~\\nexample-~~~~]",
+      "test_preserves_table_like_content_in_fences[````python-```\\nexample-````]",
+      "test_preserves_table_like_content_in_fences[```-~~~\\nexample-```]",
+      "test_preserves_table_like_content_in_fences[```-```not-a-closing-fence\\nexample-```]",
+      "test_preserves_table_like_content_in_fences[~~~-~~~\\xa0\\nexample-~~~]",
+      "test_preserves_table_like_content_in_fences[   ~~~-example-   ~~~~~]",
+      "test_preserves_table_like_content_in_fences[~~~-example-]",
+      "test_table_after_closed_fence_is_normalized[```]",
+      "test_table_after_closed_fence_is_normalized[~~~]",
+      "test_table_after_closed_fence_is_normalized[~~~\\t]",
+      "test_renderers_preserve_code_line_spacing[~~~-example-render_markdown_to_discord]",
+      "test_renderers_preserve_code_line_spacing[~~~-example-render_markdown_to_mdv2]",
+      "test_renderers_preserve_code_line_spacing[````-```\\nexample-render_markdown_to_discord]",
+      "test_renderers_preserve_code_line_spacing[````-```\\nexample-render_markdown_to_mdv2]"
+    ],
+    "baseline_failures": [
+      "test_preserves_table_like_content_in_fences[~~~-example-~~~]",
+      "test_preserves_table_like_content_in_fences[~~~~python-~~~\\nexample-~~~~]",
+      "test_preserves_table_like_content_in_fences[````python-```\\nexample-````]",
+      "test_preserves_table_like_content_in_fences[```-```not-a-closing-fence\\nexample-```]",
+      "test_preserves_table_like_content_in_fences[~~~-~~~\\xa0\\nexample-~~~]",
+      "test_preserves_table_like_content_in_fences[   ~~~-example-   ~~~~~]",
+      "test_preserves_table_like_content_in_fences[~~~-example-]",
+      "test_renderers_preserve_code_line_spacing[~~~-example-render_markdown_to_discord]",
+      "test_renderers_preserve_code_line_spacing[~~~-example-render_markdown_to_mdv2]",
+      "test_renderers_preserve_code_line_spacing[````-```\\nexample-render_markdown_to_discord]",
+      "test_renderers_preserve_code_line_spacing[````-```\\nexample-render_markdown_to_mdv2]"
+    ]
+  },
+  "fixed_sha": "8bbbf47b2c6053d08c016d5c0f8b7e352dab2081"
+}
