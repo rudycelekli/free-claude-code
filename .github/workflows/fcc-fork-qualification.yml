@@ -37,6 +37,12 @@ jobs:
       FCC_FIXED_SHA: ${{ inputs.fixed_sha }}
       FCC_MODE: ${{ matrix.mode }}
     steps:
+      - name: Configure exact Git checkout line endings
+        shell: bash
+        run: |
+          mkdir -p proof
+          git config --global core.autocrlf false
+          git config --show-origin --get-all core.autocrlf > proof/pre-checkout-autocrlf.txt
       - name: Read immutable qualification runner
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
@@ -77,10 +83,18 @@ jobs:
         run: |
           uv run --no-project --python 3.14.7 python qualification/qualification/test_evaluator.py > proof/evaluator-controls.log 2>&1
       - name: Execute full native source sequence and exact regressions
+        if: runner.os != 'Windows'
         shell: bash
         run: |
           set -o pipefail
           uv run --no-project --python 3.14.7 python qualification/qualification/native_proof.py --source source --proof proof --mode "$FCC_MODE" --fixed-sha "$FCC_FIXED_SHA" 2>&1 | tee proof/native-runner.log
+      - name: Execute native Windows source sequence and exact regressions
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          uv run --no-project --python 3.14.7 python qualification/qualification/native_proof.py --source source --proof proof --mode "$env:FCC_MODE" --fixed-sha "$env:FCC_FIXED_SHA" 2>&1 | Tee-Object -FilePath proof/native-runner.log
+          $nativeExit = $LASTEXITCODE
+          exit $nativeExit
       - name: Preserve proof on every outcome
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a

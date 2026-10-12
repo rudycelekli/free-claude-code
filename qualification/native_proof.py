@@ -50,6 +50,39 @@ def main():
     expected_head = manifest["base"] if args.mode == "baseline" else args.fixed_sha
     if head != expected_head:
         raise RuntimeError("Checkout revision mismatch")
+    configs = {}
+    for option in ["core.autocrlf", "core.eol"]:
+        result = subprocess.run(["git", "config", "--show-origin", "--get-all", option], cwd=source, capture_output=True, text=True)
+        configs[option] = {"exit": result.returncode, "output": result.stdout.strip()}
+    git_executable = shutil.which("git")
+    bash_executable = shutil.which("bash")
+    derived_bash = str(Path(git_executable).resolve().parent.parent / "bin" / "bash.exe") if git_executable and sys.platform == "win32" else None
+    git_layout = {
+        "git_executable": git_executable,
+        "bash_executable": bash_executable,
+        "test_derived_bash": derived_bash,
+        "test_derived_bash_exists": Path(derived_bash).is_file() if derived_bash else None,
+    }
+    (proof / "git-executable-inventory.json").write_text(json.dumps(git_layout, indent=2))
+    checkout_files = {}
+    for filename in manifest["fixed_files"]:
+        blob = subprocess.run(["git", "show", head + ":" + filename], cwd=source, capture_output=True)
+        file = source / filename
+        if blob.returncode or not file.exists():
+            checkout_files[filename] = {"exists_in_commit": blob.returncode == 0, "exists_in_checkout": file.exists()}
+            continue
+        raw = file.read_bytes()
+        checkout_files[filename] = {
+            "git_blob_sha256": hashlib.sha256(blob.stdout).hexdigest(),
+            "checkout_raw_sha256": hashlib.sha256(raw).hexdigest(),
+            "checkout_equals_blob": raw == blob.stdout,
+            "raw_crlf_count": raw.count(b"\r\n"),
+            "raw_lf_count": raw.count(b"\n"),
+            "only_lf_to_crlf_difference": raw != blob.stdout and raw.replace(b"\r\n", b"\n") == blob.stdout,
+        }
+    (proof / "checkout-byte-inventory.json").write_text(json.dumps({"head": head, "git_config": configs, "files": checkout_files}, indent=2))
+    if any(record.get("exists_in_commit", True) and not record.get("checkout_equals_blob", False) for record in checkout_files.values()):
+        raise RuntimeError("Raw checkout bytes differ from exact Git blob; inventory preserved")
     if args.mode == "fixed":
         changed = subprocess.check_output(["git", "diff", "--name-only", manifest["base"], head], cwd=source, text=True).splitlines()
         if sorted(changed) != sorted(manifest["fixed_files"]):
