@@ -31,10 +31,7 @@ jobs:
           - os: macOS
             runner: macos-latest
     env:
-      UV_CACHE_DIR: ${{ runner.temp }}/fcc-uv-cache
-      UV_PYTHON_INSTALL_DIR: ${{ runner.temp }}/fcc-python
       UV_PYTHON_PREFERENCE: only-managed
-      PLAYWRIGHT_BROWSERS_PATH: ${{ runner.temp }}/fcc-browsers
       UV_MALWARE_CHECK: '1'
       UV_PREVIEW_FEATURES: malware-check
       FCC_FIXED_SHA: ${{ inputs.fixed_sha }}
@@ -58,6 +55,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p proof
+          printf 'UV_CACHE_DIR=%s/fcc-uv-cache\nUV_PYTHON_INSTALL_DIR=%s/fcc-python\nPLAYWRIGHT_BROWSERS_PATH=%s/fcc-browsers\n' "$RUNNER_TEMP" "$RUNNER_TEMP" "$RUNNER_TEMP" >> "$GITHUB_ENV"
           git -C qualification rev-parse HEAD > proof/qualification-head.txt
           git -C source rev-parse HEAD > proof/source-head.txt
       - name: Install exact uv
