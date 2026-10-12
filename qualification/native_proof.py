@@ -44,6 +44,8 @@ def main():
     proof.mkdir(parents=True, exist_ok=True)
     own = Path(__file__).resolve().parent
     manifest = json.loads((own / "candidate-manifest.json").read_text())
+    if args.fixed_sha != manifest["fixed_sha"]:
+        raise RuntimeError("Fixed commit differs from frozen manifest identity")
     head = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=source, text=True).strip()
     expected_head = manifest["base"] if args.mode == "baseline" else args.fixed_sha
     if head != expected_head:
