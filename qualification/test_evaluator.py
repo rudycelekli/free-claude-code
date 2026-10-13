@@ -25,8 +25,8 @@ class EvaluatorControls(unittest.TestCase):
             return regression_outcome(path, self.expected, mode)
 
     def test_valid_fixed_and_baseline(self):
-        self.assertEqual(self.check("fixed")["tests"], 15)
-        self.assertEqual(len(self.check("baseline")["failures"]), 11)
+        self.assertEqual(self.check("fixed")["tests"], 28)
+        self.assertEqual(len(self.check("baseline")["failures"]), 16)
 
     def test_missing_test_rejected(self):
         with self.assertRaises(RuntimeError):
@@ -39,6 +39,14 @@ class EvaluatorControls(unittest.TestCase):
     def test_unexpected_failure_rejected(self):
         with self.assertRaises(RuntimeError):
             self.check("fixed", lambda root: ET.SubElement(root[0], "failure"))
+
+    def test_error_rejected(self):
+        with self.assertRaises(RuntimeError):
+            self.check("fixed", lambda root: ET.SubElement(root[0], "error"))
+
+    def test_duplicate_identity_rejected(self):
+        with self.assertRaises(RuntimeError):
+            self.check("fixed", lambda root: root[1].set("name", root[0].get("name")))
 
     def test_wrong_identity_rejected(self):
         with self.assertRaises(RuntimeError):

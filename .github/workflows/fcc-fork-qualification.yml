@@ -1,5 +1,7 @@
-name: FCC fork native qualification
+name: FCC source-map native requalification
 on:
+  push:
+    branches: [qualification/messaging-source-maps-native]
   workflow_dispatch:
     inputs:
       fixed_sha:
@@ -34,7 +36,7 @@ jobs:
       UV_PYTHON_PREFERENCE: only-managed
       UV_MALWARE_CHECK: '1'
       UV_PREVIEW_FEATURES: malware-check
-      FCC_FIXED_SHA: ${{ inputs.fixed_sha }}
+      FCC_FIXED_SHA: ${{ inputs.fixed_sha || '5d5a10a5773fb7ede27619b35f613f7fbd98e57b' }}
       FCC_MODE: ${{ matrix.mode }}
     steps:
       - name: Configure exact Git checkout line endings
@@ -53,7 +55,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           repository: ${{ matrix.mode == 'baseline' && 'Alishahryar1/free-claude-code' || 'rudycelekli/free-claude-code' }}
-          ref: ${{ matrix.mode == 'baseline' && '4e99ddaa5cf453d4ef22fae7c17f7f3aacc3c52b' || inputs.fixed_sha }}
+          ref: ${{ matrix.mode == 'baseline' && '8e67526c62347b3e33bc2f57ebf0118f873d2533' || inputs.fixed_sha || '5d5a10a5773fb7ede27619b35f613f7fbd98e57b' }}
           path: source
           fetch-depth: 0
           persist-credentials: false

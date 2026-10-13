@@ -1,11 +1,12 @@
 {
-  "base": "4e99ddaa5cf453d4ef22fae7c17f7f3aacc3c52b",
-  "patch_sha256": "3e8c0469edf6dee7bf8d7154467309ef8e22828bdd503fa8ba9d726f80e32a3e",
+  "base": "8e67526c62347b3e33bc2f57ebf0118f873d2533",
+  "fixed_sha": "5d5a10a5773fb7ede27619b35f613f7fbd98e57b",
   "fixed_files": {
-    "README.md": "949e4f5a922a308a3279008e079683761301fd2644742ebeb9acade7ed51ae5a",
-    "src/free_claude_code/messaging/rendering/markdown_tables.py": "378d3c6c97e2b49818541df5a4e8b95f7fa0914f048adcf99907b30a990543a3",
-    "tests/messaging/test_markdown_table_fences.py": "465610b335fd5eb8bea9d0a63513b8d12dc9888477fd61f342ca6b1e42d816ae"
+    "src/free_claude_code/messaging/rendering/markdown_tables.py": "33fe5ccecb3beac9d0f4d1ffab79bea641df149af164af7f0df4521eda12a830",
+    "tests/messaging/test_markdown_table_fences.py": "eb10eb7850cb283cda3b769767267f1445b8231d98dc0443335c49e9d498e683",
+    "README.md": "029ec5b827960826d1e9c85521b39dad9ca9f76127b0ccea610419d8a03e7d9e"
   },
+  "patch_sha256": "60e1ca008bf410200df2a94d5b69f1721ad45c33786f709731ee4d25eab3dc40",
   "regression_path": "tests/messaging/test_markdown_table_fences.py",
   "regressions": {
     "names": [
@@ -23,7 +24,20 @@
       "test_renderers_preserve_code_line_spacing[~~~-example-render_markdown_to_discord]",
       "test_renderers_preserve_code_line_spacing[~~~-example-render_markdown_to_mdv2]",
       "test_renderers_preserve_code_line_spacing[````-```\\nexample-render_markdown_to_discord]",
-      "test_renderers_preserve_code_line_spacing[````-```\\nexample-render_markdown_to_mdv2]"
+      "test_renderers_preserve_code_line_spacing[````-```\\nexample-render_markdown_to_mdv2]",
+      "test_list_fences_do_not_gain_blank_lines[render_markdown_to_discord-```-```]",
+      "test_list_fences_do_not_gain_blank_lines[render_markdown_to_discord-~~~-~~~]",
+      "test_list_fences_do_not_gain_blank_lines[render_markdown_to_discord-````-````]",
+      "test_list_fences_do_not_gain_blank_lines[render_markdown_to_mdv2-```-```]",
+      "test_list_fences_do_not_gain_blank_lines[render_markdown_to_mdv2-~~~-~~~]",
+      "test_list_fences_do_not_gain_blank_lines[render_markdown_to_mdv2-````-````]",
+      "test_code_blocks_in_containers_are_not_normalized[- ```\\n  example\\n  | A | B |\\n  | --- | --- |\\n  ```]",
+      "test_code_blocks_in_containers_are_not_normalized[- item\\n  - nested\\n\\n        ~~~\\n        example\\n        | A | B |\\n        | --- | --- |\\n        ~~~]",
+      "test_code_blocks_in_containers_are_not_normalized[    example\\n    | A | B |\\n    | --- | --- |]",
+      "test_dedented_table_after_indented_literal_fence_is_normalized",
+      "test_code_source_maps_follow_existing_line_normalization[\\u2028]",
+      "test_code_source_maps_follow_existing_line_normalization[\\u2029]",
+      "test_code_source_maps_follow_existing_line_normalization[\\x85]"
     ],
     "baseline_failures": [
       "test_preserves_table_like_content_in_fences[~~~-example-~~~]",
@@ -36,10 +50,15 @@
       "test_renderers_preserve_code_line_spacing[~~~-example-render_markdown_to_discord]",
       "test_renderers_preserve_code_line_spacing[~~~-example-render_markdown_to_mdv2]",
       "test_renderers_preserve_code_line_spacing[````-```\\nexample-render_markdown_to_discord]",
-      "test_renderers_preserve_code_line_spacing[````-```\\nexample-render_markdown_to_mdv2]"
+      "test_renderers_preserve_code_line_spacing[````-```\\nexample-render_markdown_to_mdv2]",
+      "test_list_fences_do_not_gain_blank_lines[render_markdown_to_discord-~~~-~~~]",
+      "test_list_fences_do_not_gain_blank_lines[render_markdown_to_mdv2-~~~-~~~]",
+      "test_code_blocks_in_containers_are_not_normalized[- ```\\n  example\\n  | A | B |\\n  | --- | --- |\\n  ```]",
+      "test_code_blocks_in_containers_are_not_normalized[- item\\n  - nested\\n\\n        ~~~\\n        example\\n        | A | B |\\n        | --- | --- |\\n        ~~~]",
+      "test_code_blocks_in_containers_are_not_normalized[    example\\n    | A | B |\\n    | --- | --- |]"
     ]
   },
-  "fixed_sha": "47f8552b43e96f52e50fde0589a685a9ad740de8",
-  "baseline_regression_fixture_sha256": "455957f71746e5c3533d70aed8b4ab2c953b89a8b31320b7e45e7fa22e81a99b",
-  "fixture_relation": "Earlierfrozenbaselinefixtureandformattedfixedtestdifferonlyimportlayout; ASTidentical verified/rootformatreviewPASS. No rawbyteidentityclaim."
+  "baseline_regression_fixture_sha256": "eb10eb7850cb283cda3b769767267f1445b8231d98dc0443335c49e9d498e683",
+  "fixture_relation": "Frozen28casefixturebyteidenticalcandidate; derivedbase8e16FAIL12PASS/fixed28PASS usingexistingCPython3.14.7focusedruntime, initializerstubs only; nofullappclaim",
+  "scm_identity_mapping": "NONE; strictcomparison remains; any legitimate head-derived identity differences require actualnativeproof and independent frozen finite mapping"
 }
