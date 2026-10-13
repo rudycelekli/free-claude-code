@@ -1,10 +1,10 @@
 {
   "base": "4e99ddaa5cf453d4ef22fae7c17f7f3aacc3c52b",
-  "patch_sha256": "b2e216b1b25c350a4b620675e3ee562bc9cfe74a1b1fe7daf72438f9153168f1",
+  "patch_sha256": "3e8c0469edf6dee7bf8d7154467309ef8e22828bdd503fa8ba9d726f80e32a3e",
   "fixed_files": {
     "README.md": "949e4f5a922a308a3279008e079683761301fd2644742ebeb9acade7ed51ae5a",
     "src/free_claude_code/messaging/rendering/markdown_tables.py": "378d3c6c97e2b49818541df5a4e8b95f7fa0914f048adcf99907b30a990543a3",
-    "tests/messaging/test_markdown_table_fences.py": "455957f71746e5c3533d70aed8b4ab2c953b89a8b31320b7e45e7fa22e81a99b"
+    "tests/messaging/test_markdown_table_fences.py": "465610b335fd5eb8bea9d0a63513b8d12dc9888477fd61f342ca6b1e42d816ae"
   },
   "regression_path": "tests/messaging/test_markdown_table_fences.py",
   "regressions": {
@@ -39,5 +39,7 @@
       "test_renderers_preserve_code_line_spacing[````-```\\nexample-render_markdown_to_mdv2]"
     ]
   },
-  "fixed_sha": "8bbbf47b2c6053d08c016d5c0f8b7e352dab2081"
+  "fixed_sha": "47f8552b43e96f52e50fde0589a685a9ad740de8",
+  "baseline_regression_fixture_sha256": "455957f71746e5c3533d70aed8b4ab2c953b89a8b31320b7e45e7fa22e81a99b",
+  "fixture_relation": "Earlierfrozenbaselinefixtureandformattedfixedtestdifferonlyimportlayout; ASTidentical verified/rootformatreviewPASS. No rawbyteidentityclaim."
 }
